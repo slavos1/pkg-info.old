@@ -1,0 +1,8 @@
+#!/bin/bash
+
+THIS_DIR=$(dirname $(readlink -f $0))
+if [[ -z $VENV ]]; then
+    VENV=.venv
+fi
+
+${THIS_DIR}/${VENV}/bin/python ${THIS_DIR}/pkg-info.py "$@"

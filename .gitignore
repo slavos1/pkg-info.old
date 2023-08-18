@@ -1,0 +1,4 @@
+info.txt*
+.venv/
+*.pyc
+Makefile
