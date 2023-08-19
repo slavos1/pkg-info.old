@@ -1,24 +1,24 @@
 = Package size as reported by dpkg
 :icons: font
 
-I wanted to see which packages took most space on my Debian.
-
+I wanted to see packages that took most space on my Debian.
 Hence this simple script.
-
 It essentially runs:
 [source]
 ----
 for each package P returned from "dpkg -L" run
-    for each file that is not a symlink from "dpkg -l $P"
+    for each file that is not a symlink from "dpkg -l $P" run
         get the file size
+    sum the file sizes as a size of the package
 ----
 
 `dpkg -l` invocations are run in parallel (currently hard-coded to 10 threads) so it should be reasonably fast.
 
-== Prerequisites
+== Usage
+
+Clone the repo locally, then run once:
 
 [source,shell]
-.Run once
 ----
 python -m venv .venv
 source .venv/bin/activate
@@ -26,42 +26,36 @@ pip install -U pip
 pip install loguru==0.7.0
 ----
 
-If you use a different name for your `venv` than `.venv`, you would need to update the wrapper script (`pkg-info`) or call with the name like `VENV=myenv pkg-info`.
-
-Optional (see an example below) -- https://github.com/junegunn/fzf[fzf].
-
-== Usage
-
 To gather each installed package's files' sizes into `info.txt` file, run:
 
 [source,shell]
 ----
 sudo ./pkg-info > info.txt
 
-# or if you do not mind some files/folders not being read
+# or if you do not mind some files/folders not being read due to insufficient permissions
 ./pkg-info > info.txt
 ----
 
-`info.txt` looks like (empty lines added for readability):
+NOTE: If you used a different name for your `venv` than `.venv` (say, `myenv`), you would need to update the wrapper script (`pkg-info`) or pass the name via the environment variable `VENV`, for example: `VENV=myenv ./pkg-info`.
+
+Resulting `info.txt` file looks similar to this:
 ----
 0.66 MiB        adduser         3.118           add and remove users and groups
-
 2.19 MiB        apparmor        2.13.6-10       user-space parser utility for AppArmor
-
 0.23 MiB        apt-listchanges 3.24            package change history notification tool
-
 ... snip ...
-
-4172.98 MiB     total
+4172.98 MiB     total # <1>
 ----
+
+<1> 'total' is always the last line
 
 [TIP]
 ====
-Once you have sizes gathered in `info.txt`, you may want to choose which one to uninstall using `fzf`, for example:
+To help you choose which package to uninstall based on its size, you may want to use https://github.com/junegunn/fzf[`fzf`] with `info.txt` file like this:
 
 [source,shell]
 ----
-sudo apt remove $(sort -nr info.txt|fzf|awk '{print $3}')
+sudo apt remove $(sort -nr info.txt | fzf | awk '{print $3}')
 ----
 ====
 
@@ -70,3 +64,4 @@ sudo apt remove $(sort -nr info.txt|fzf|awk '{print $3}')
 * [ ] add command line parameters for:
 ** filtering package names
 ** debug/quiet logging
+** number of threads (currently hard-coded to 10)
