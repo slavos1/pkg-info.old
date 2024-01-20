@@ -1,6 +1,8 @@
 = Package size as reported by dpkg
 :icons: font
 
+#This repo has been archived, see https://github.com/slavos1/pkg-info[pkg-info] instead#
+
 I wanted to see packages that took most space on my Debian.
 Hence this simple script.
 It essentially runs:
